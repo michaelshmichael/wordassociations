@@ -1,0 +1,8 @@
+#inputDiv{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    align-items: center;
+    margin-bottom: 40px;
+    width: 500px;
+}
