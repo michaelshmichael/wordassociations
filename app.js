@@ -1,13 +1,30 @@
 const searchButton = document.getElementById('inputDivSearchButton')
-searchButton.addEventListener('click', setAssociations)
+searchButton.addEventListener('click', renderAssociations)
 const userInput = document.getElementById('inputDivUserInput')
 userInput.addEventListener('keypress', (e) => {
     if (e.keyCode == 13) {
-        setAssociations()
+        renderAssociations()
     }
 });
 
-class synonym {
+let loaderAnimation = document.querySelector('.hiddenLoader');
+
+const defaultFunctions = {
+    removeLoader: () => {
+        let animatedLoader = document.querySelector('.lds-ellipsis')
+        animatedLoader.classList.remove('lds-ellipsis')
+        animatedLoader.classList.add('hiddenLoader')
+        loaderAnimation.classList.remove('lds-ellipsis')
+        loaderAnimation.classList.add('hiddenLoader')
+    },
+
+    setLoader: () => {
+        loaderAnimation.classList.remove('hiddenLoader')
+        loaderAnimation.classList.add('lds-ellipsis')
+    }
+}
+
+class association {
     constructor(meaning, partOfSpeech, weight){
         this.meaning = meaning
         this.partOfSpeech = partOfSpeech;
@@ -27,17 +44,33 @@ async function _getAssociations () {
     }
 }
 
-async function setAssociations () {
-    let newResult = new synonym
+async function _setAssociations () {
+    let firstAssociation = new association
+    let secondAssociation = new association
     let data = await _getAssociations()
-    let array = []
+    let synonymArray = []
 
-    newResult.meaning = data.response[0].items[0].item
-    newResult.partOfSpeech = data.response[0].items[0].pos
-    newResult.weight = data.response[0].items[0].weight
+    firstAssociation.meaning = data.response[0].items[0].item
+    firstAssociation.partOfSpeech = data.response[0].items[0].pos
+    firstAssociation.weight = data.response[0].items[0].weight
+
+    secondAssociation.meaning = data.response[0].items[1].item
+    secondAssociation.partOfSpeech = data.response[0].items[1].pos
+    secondAssociation.weight = data.response[0].items[1].weight
     
-    array.push(newResult)
+    synonymArray.push(firstAssociation, secondAssociation)
+    return synonymArray
+}
 
-    console.log(data)
-    console.log(array)
+async function renderAssociations() {
+    defaultFunctions.setLoader()
+    let array = await _setAssociations()
+    defaultFunctions.removeLoader()
+    array.forEach(element => {
+        let container = document.createElement('div')
+        container.classList.add('.wordContainer')
+        let synonymContainer = document.getElementById('synonymContainer')
+        synonymContainer.appendChild(container)
+        container.textContent = element.meaning
+    })
 }
